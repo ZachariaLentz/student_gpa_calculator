@@ -64,23 +64,38 @@ const getters = {
 };
 
 const actions = {
+  addStudent: ({ commit }, studentData) => {
+    const studentCopy = state.students
+    studentCopy.sort((a,b)=>(a.id>b.id ? 1 : -1))
+    const lastId = studentCopy[studentCopy.length-1].id
+    const student = {
+      id: lastId + 1,
+      name: studentData.name,
+      math: studentData.math,
+      history: studentData.history,
+      science: studentData.science,
+      english: studentData.english,
+      gpa: ""
+    }
+    commit('addStudent', student)
+  },
   sortTable: ({ commit }, col) => {
     commit("setSortTable", col);
   },
   calculateGPA: ({ commit }) => {
     const grades = {
-      A: 4.0,
+      "A": 4.0,
       "A-": 3.7,
       "B+": 3.33,
-      B: 3.0,
+      "B": 3.0,
       "B-": 2.7,
       "C+": 2.3,
-      C: 2.0,
+      "C": 2.0,
       "C-": 1.7,
       "D+": 1.3,
-      D: 1.0,
+      "D": 1.0,
       "D-": 0.7,
-      F: 0
+      "F": 0
     };
     state.students.map((student, i) => {
       const math = student.math;
@@ -100,7 +115,7 @@ const actions = {
   },
   highestLowest: ({ commit }) => {
     let studentCopy = state.students
-    studentCopy.sort((a,b)=>(a.gpa>b.gpa) ? 1 : -1)
+    studentCopy.sort((a,b)=>(a.gpa>b.gpa) ? -1 : 1)
     const highest =studentCopy[0].gpa
     const lowest = studentCopy[studentCopy.length-1].gpa
     commit("setHighestLowest", {highest, lowest});
@@ -108,6 +123,9 @@ const actions = {
 };
 
 const mutations = {
+  addStudent: (state, student) => {
+    state.students.unshift(student)
+  },
   setGPAs: (state, { i, calculatedGPA }) => {
     state.students[i].gpa = calculatedGPA;
   },

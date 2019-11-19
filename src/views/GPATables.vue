@@ -1,42 +1,37 @@
 <template>
-  <div>
-    <AppButton v-on:add-student-form="addStudentForm" name="appButton"/>
-    <AddStudentForm v-on:add-student="addStudent(student)"/>
-    <table class="gradesTable">
-      <thead>
-        <tr>
-          <th
-            v-for="col in allColumns"
-            :key="col.Index"
-            v-on:click="sortTable(col)"
+  <div class="wrapper">
+    <AppButton class="addStudent" v-on:add-student-form="addStudentForm" name="appButton" />
+    <AddStudentForm class="studentForm" v-on:add-student="addStudentData" />
+      <table class="gradesTable">
+        <thead>
+          <tr>
+            <th v-for="col in allColumns" :key="col.Index" v-on:click="sortTable(col)">
+              {{ col }}
+              <i
+                class="arrow"
+                v-if="col == sortColumn"
+                :class="ascending ? 'fa fa-sort-asc' : 'arrow_down'"
+              ></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="student in allStudents"
+            :key="student.id"
+            :class="student.gpa == gpaHigh ? 'highest' : student.gpa == gpaLow ? 'lowest' : ''"
           >
-            {{ col }}
-            <div
-              class="arrow"
-              v-if="col == sortColumn"
-              :class="ascending ? 'arrow_up' : 'arrow_down'"
-            ></div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="student in allStudents"
-          :key="student.id"
-          :class="student.gpa == gpaHigh ? 'highest' : student.gpa == gpaLow ? 'lowest' : ''"
-        >
-        
-          <td v-for="col in allColumns" :key="col.Index">{{ student[col] }}</td>
-        </tr>
-      </tbody>
-    </table>
+            <td v-for="col in allColumns" :key="col.Index">{{ student[col] }}</td>
+          </tr>
+        </tbody>
+      </table>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
-import AppButton from '../components/AppButton'
-import AddStudentForm from '../components/AddStudentForm'
+import { mapGetters, mapActions } from "vuex";
+import AppButton from "../components/AppButton";
+import AddStudentForm from "../components/AddStudentForm";
 
 export default {
   name: "GPATables",
@@ -55,36 +50,52 @@ export default {
     ])
   },
   methods: {
-    ...mapActions(["sortTable", "calculateGPA",
-      "highestLowest"]),
-      addStudentForm() {
-        this.showForm = !this.showForm
-      },
-      addStudent(student) {
-        console.log(student)
-      }
-  },
-  data() {
-    return{
-      showForm: false
+    ...mapActions(["sortTable", "calculateGPA", "highestLowest", "addStudent"]),
+    addStudentForm() {
+      this.showForm = !this.showForm;
+    },
+    addStudentData(student) {
+      this.addStudent(student).then(
+        this.calculateGPA().then(this.highestLowest())
+      );
     }
   },
+  data() {
+    return {
+      showForm: false
+    };
+  },
   created() {
-    this.calculateGPA().then(
-    this.highestLowest())
+    this.calculateGPA().then(this.highestLowest());
   }
 };
 </script>
 
 <style scoped>
+.addStudent {
+  display: none;
+}
 
+.wrapper {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-row-gap: 1rem;
+}
+
+.studentForm {
+  grid-row: 1/2;
+  grid-column: 2/3;
+
+}
 
 table {
   font-family: "Open Sans", sans-serif;
   width: 750px;
   border-collapse: collapse;
   border: 3px solid #44475c;
-  margin: 10px 10px 0 10px;
+  grid-row: 2/3;
+  grid-column:2/3;
 }
 
 table th {
